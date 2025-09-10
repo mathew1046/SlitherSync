@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.malabarmatrix.slithersync.ui.state.GameViewModel
 import kotlin.math.atan2
@@ -60,7 +61,10 @@ fun GameScreen(vm: GameViewModel) {
             title = { Text("Game Over") },
             text = { Text("Score: $score") },
             confirmButton = {
-                TextButton(onClick = { vm.restart(canvasWidth.toInt(), canvasHeight.toInt()) }) { Text("Restart") }
+                TextButton(onClick = {
+                    vm.restart(canvasWidth.toInt(), canvasHeight.toInt())
+                    vm.startGame()
+                }) { Text("Restart") }
             }
         )
     }
@@ -69,12 +73,33 @@ fun GameScreen(vm: GameViewModel) {
         topBar = {
             Row(
                 Modifier.fillMaxWidth().background(Color(0xFF0E1115)).padding(12.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Score: $score", color = Color.White, style = MaterialTheme.typography.titleMedium)
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                // Left: App name
+                Text(
+                    "SlitherSync",
+                    color = Color(0xFF8AB4F8),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Start
+                )
+                // Center: Live score
+                Text(
+                    "Score: $score",
+                    color = Color.White,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center
+                )
+                // Right: Pause/Resume + Restart
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Button(onClick = { vm.togglePause() }) { Text(if (paused) "Resume" else "Pause") }
+                    androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.padding(horizontal = 4.dp))
+                    Button(onClick = { vm.restart(canvasWidth.toInt(), canvasHeight.toInt()); vm.startGame() }) { Text("Restart") }
                 }
             }
         },

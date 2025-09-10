@@ -50,15 +50,13 @@ class GameViewModel(
     fun attachCanvas(width: Int, height: Int) {
         lastCanvasWidth = width
         lastCanvasHeight = height
-        if (engine == null) {
-            engine = SnakeEngine(width, height, stepPixels = stepPixels)
-            emitFrame()
-            startLoops()
-        }
+        // Do not create engine here; it will be created when game starts
+        emitFrame()
+        startLoopsIfNeeded()
     }
 
-    private fun startLoops() {
-        val e = engine ?: return
+    private fun startLoopsIfNeeded() {
+        if (ticker != null) return
         viewModelScope.launch {
             sensorRepo.headingDegrees.collectLatest { deg ->
                 if (!touchActive) {
@@ -68,13 +66,13 @@ class GameViewModel(
         }
         viewModelScope.launch {
             stepRepo.stepDeltaFlow.collectLatest { delta ->
-                if (!_paused.value && delta != 0) e.moveForwardBySteps(delta)
+                engine?.let { e -> if (!_paused.value && delta != 0) e.moveForwardBySteps(delta) }
             }
         }
-        ticker?.cancel()
         ticker = viewModelScope.launch {
             while (true) {
                 delay(16L)
+                val e = engine ?: continue
                 if (_paused.value) continue
                 e.turnToDegrees(heading)
                 e.tickBaseline(6f)
@@ -98,19 +96,29 @@ class GameViewModel(
     }
 
     fun startGame() {
-        _showStart.value = false
-        _showGameOver.value = false
-        _paused.value = false
+        if (lastCanvasWidth > 0 && lastCanvasHeight > 0) {
+            engine = SnakeEngine(lastCanvasWidth, lastCanvasHeight, stepPixels = stepPixels)
+            heading = 0f
+            touchActive = false
+            _score.value = 0
+            _paused.value = false
+            _showStart.value = false
+            _showGameOver.value = false
+            emitFrame()
+        }
     }
 
     fun restart(width: Int = lastCanvasWidth, height: Int = lastCanvasHeight) {
-        engine = SnakeEngine(width, height, stepPixels = stepPixels)
+        // Full reset: clear engine/state and show Start dialog
+        engine = null
         heading = 0f
         touchActive = false
-        _showGameOver.value = false
-        _paused.value = false
         _score.value = 0
-        emitFrame()
+        _paused.value = false
+        _showGameOver.value = false
+        _showStart.value = true
+        _state.value = null
+        // Canvas size persists in lastCanvasWidth/lastCanvasHeight
     }
 
     fun togglePause() { _paused.value = !_paused.value }

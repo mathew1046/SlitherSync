@@ -11,6 +11,7 @@ class SnakeEngine(
     initialLength: Int = 10,
     private val stepPixels: Float = 10f,
     private val headRadius: Float = 8f,
+    private val borderMargin: Float = 10f,
 ) {
     private val random = Random(System.currentTimeMillis())
 
@@ -66,10 +67,9 @@ class SnakeEngine(
         val newHead = Point(head.x + dx, head.y + dy)
         points.addFirst(newHead)
 
-        // Tail trimming amount reduced by pendingGrowth
+        // Tail trimming considering growth
         var trimAmount = distance - pendingGrowth
         if (trimAmount <= 0f) {
-            // All movement goes to growth this tick; carry over leftover growth (positive)
             pendingGrowth = -trimAmount
             trimAmount = 0f
         } else {
@@ -85,7 +85,6 @@ class SnakeEngine(
                 points.removeLast()
                 remaining -= segLen
             } else {
-                // shorten last segment proportionally
                 val t = (segLen - remaining) / segLen
                 val nx = beforeLast.x * (1 - t) + last.x * t
                 val ny = beforeLast.y * (1 - t) + last.y * t
@@ -98,8 +97,12 @@ class SnakeEngine(
 
     private fun checkCollisions() {
         val head = points.first()
+        val minX = borderMargin
+        val minY = borderMargin
+        val maxX = canvasWidth - borderMargin
+        val maxY = canvasHeight - borderMargin
         // walls
-        if (head.x < 0 || head.y < 0 || head.x > canvasWidth || head.y > canvasHeight) {
+        if (head.x < minX || head.y < minY || head.x > maxX || head.y > maxY) {
             isGameOver = true
             return
         }
@@ -114,16 +117,20 @@ class SnakeEngine(
         currentFood?.let { f ->
             if (distanceBetween(head, f) < headRadius * 2) {
                 score += 1
-                pendingGrowth += headRadius * 12 // increase length more noticeably on eat
+                pendingGrowth += headRadius * 12
                 spawnFood()
             }
         }
     }
 
     private fun spawnFood() {
+        val minX = (borderMargin + headRadius * 2).toInt()
+        val maxX = (canvasWidth - borderMargin - headRadius * 2).toInt()
+        val minY = (borderMargin + headRadius * 2).toInt()
+        val maxY = (canvasHeight - borderMargin - headRadius * 2).toInt()
         currentFood = Point(
-            x = random.nextInt((headRadius * 2).toInt(), canvasWidth - (headRadius * 2).toInt()).toFloat(),
-            y = random.nextInt((headRadius * 2).toInt(), canvasHeight - (headRadius * 2).toInt()).toFloat()
+            x = random.nextInt(minX, maxX).toFloat(),
+            y = random.nextInt(minY, maxY).toFloat()
         )
     }
 
