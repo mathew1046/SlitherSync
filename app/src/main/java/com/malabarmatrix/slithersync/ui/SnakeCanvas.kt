@@ -13,7 +13,23 @@ import com.malabarmatrix.slithersync.domain.GameState
 @Composable
 fun SnakeCanvas(state: GameState, modifier: Modifier = Modifier) {
     Canvas(modifier = modifier.fillMaxSize()) {
-        // Draw food
+        // border
+        drawRect(color = Color(0xFF23303A), style = Stroke(width = 6f))
+
+        // subtle grid
+        val step = 64f
+        var x = 0f
+        while (x <= size.width) {
+            drawLine(color = Color(0x2210FFFFFF), start = Offset(x, 0f), end = Offset(x, size.height), strokeWidth = 1f)
+            x += step
+        }
+        var y = 0f
+        while (y <= size.height) {
+            drawLine(color = Color(0x2210FFFFFF), start = Offset(0f, y), end = Offset(size.width, y), strokeWidth = 1f)
+            y += step
+        }
+
+        // food
         state.food?.let { f ->
             drawCircle(
                 color = Color(0xFFE91E63),
@@ -21,7 +37,7 @@ fun SnakeCanvas(state: GameState, modifier: Modifier = Modifier) {
                 center = Offset(f.x, f.y)
             )
         }
-        // Draw snake as a stroked path (segments as points)
+        // snake
         val segments = state.segments
         if (segments.size >= 2) {
             for (i in 0 until segments.size - 1) {

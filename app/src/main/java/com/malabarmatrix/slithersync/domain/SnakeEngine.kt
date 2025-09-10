@@ -1,7 +1,6 @@
 package com.malabarmatrix.slithersync.domain
 
 import kotlin.math.PI
-import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
@@ -67,7 +66,17 @@ class SnakeEngine(
         val newHead = Point(head.x + dx, head.y + dy)
         points.addFirst(newHead)
 
-        var remaining = distance + pendingGrowth
+        // Tail trimming amount reduced by pendingGrowth
+        var trimAmount = distance - pendingGrowth
+        if (trimAmount <= 0f) {
+            // All movement goes to growth this tick; carry over leftover growth (positive)
+            pendingGrowth = -trimAmount
+            trimAmount = 0f
+        } else {
+            pendingGrowth = 0f
+        }
+
+        var remaining = trimAmount
         while (remaining > 0f && points.size > 1) {
             val last = points.last()
             val beforeLast = points.elementAt(points.size - 2)
@@ -85,7 +94,6 @@ class SnakeEngine(
                 remaining = 0f
             }
         }
-        pendingGrowth = 0f
     }
 
     private fun checkCollisions() {
@@ -106,7 +114,7 @@ class SnakeEngine(
         currentFood?.let { f ->
             if (distanceBetween(head, f) < headRadius * 2) {
                 score += 1
-                pendingGrowth += headRadius * 6
+                pendingGrowth += headRadius * 12 // increase length more noticeably on eat
                 spawnFood()
             }
         }
