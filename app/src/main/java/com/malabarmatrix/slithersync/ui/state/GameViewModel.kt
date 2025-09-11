@@ -38,7 +38,7 @@ class GameViewModel(
     private val _paused = MutableStateFlow(false)
     val paused: StateFlow<Boolean> = _paused
 
-    var stepPixels: Float = 10f
+    var stepPixels: Float = 30f
     
     // Expose step data from StepViewModel
     val totalSteps: StateFlow<Int> = stepViewModel.totalSteps
@@ -76,19 +76,17 @@ class GameViewModel(
         
         // Handle step-based movement - snake only moves when steps are detected
         viewModelScope.launch {
-            stepViewModel.stepDelta.collectLatest { stepDelta ->
-                if (stepDelta > 0) {
-                    engine?.let { e -> 
-                        if (!_paused.value) {
-                            e.turnToDegrees(heading)
-                            e.moveForwardBySteps(stepDelta)
-                            val s = e.getState()
-                            _state.value = s
-                            _score.value = s.score
-                            if (s.isGameOver) {
-                                _showGameOver.value = true
-                                _paused.value = true
-                            }
+            stepViewModel.stepEvents.collectLatest {
+                engine?.let { e ->
+                    if (!_paused.value) {
+                        e.turnToDegrees(heading)
+                        e.moveForwardBySteps(1)
+                        val s = e.getState()
+                        _state.value = s
+                        _score.value = s.score
+                        if (s.isGameOver) {
+                            _showGameOver.value = true
+                            _paused.value = true
                         }
                     }
                 }

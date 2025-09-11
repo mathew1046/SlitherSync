@@ -146,20 +146,6 @@ fun GameScreen(vm: GameViewModel) {
                     )
                 }
             }
-        },
-        bottomBar = {
-            BottomAppBar(
-                actions = {
-                    Row(
-                        Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Button(onClick = { vm.simulateSteps(5) }) { Text("+5") }
-                        Button(onClick = { vm.simulateSteps(20) }) { Text("+20") }
-                    }
-                }
-            )
         }
     ) { padding ->
         Box(
