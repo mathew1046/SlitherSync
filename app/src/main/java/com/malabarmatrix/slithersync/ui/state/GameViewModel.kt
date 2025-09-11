@@ -18,6 +18,7 @@ class GameViewModel(
     app: Application,
     private val stepRepo: StepRepository,
     private val sensorRepo: SensorRepository,
+    private val stepViewModel: StepViewModel,
 ) : AndroidViewModel(app) {
 
     private var engine: SnakeEngine? = null
@@ -38,6 +39,12 @@ class GameViewModel(
     val paused: StateFlow<Boolean> = _paused
 
     var stepPixels: Float = 10f
+    
+    // Expose step data from StepViewModel
+    val totalSteps: StateFlow<Int> = stepViewModel.totalSteps
+    val sessionSteps: StateFlow<Int> = stepViewModel.sessionSteps
+    val caloriesBurned: StateFlow<Double> = stepViewModel.caloriesBurned
+    val isStepDetectionActive: StateFlow<Boolean> = stepViewModel.isStepDetectionActive
 
     private var heading: Float = 0f
     private var touchActive: Boolean = false
@@ -57,6 +64,8 @@ class GameViewModel(
 
     private fun startLoopsIfNeeded() {
         if (ticker != null) return
+        
+        // Handle device orientation for snake direction
         viewModelScope.launch {
             sensorRepo.headingDegrees.collectLatest { deg ->
                 if (!touchActive) {
@@ -64,21 +73,43 @@ class GameViewModel(
                 }
             }
         }
+        
+        // Handle step-based movement - snake only moves when steps are detected
         viewModelScope.launch {
-            stepRepo.stepDeltaFlow.collectLatest { delta ->
-                engine?.let { e -> if (!_paused.value && delta != 0) e.moveForwardBySteps(delta) }
+            stepViewModel.stepDelta.collectLatest { stepDelta ->
+                if (stepDelta > 0) {
+                    engine?.let { e -> 
+                        if (!_paused.value) {
+                            e.turnToDegrees(heading)
+                            e.moveForwardBySteps(stepDelta)
+                            val s = e.getState()
+                            _state.value = s
+                            _score.value = s.score
+                            if (s.isGameOver) {
+                                _showGameOver.value = true
+                                _paused.value = true
+                            }
+                        }
+                    }
+                }
             }
         }
+        
+        // Main game loop - only for UI updates, no automatic movement
         ticker = viewModelScope.launch {
             while (true) {
-                delay(16L)
+                delay(16L) // 60 FPS
                 val e = engine ?: continue
                 if (_paused.value) continue
+                
+                // Only update direction, no automatic forward movement
                 e.turnToDegrees(heading)
-                e.tickBaseline(6f)
+                
+                // Emit current state for UI updates
                 val s = e.getState()
                 _state.value = s
                 _score.value = s.score
+                
                 if (s.isGameOver) {
                     _showGameOver.value = true
                     _paused.value = true
@@ -118,6 +149,10 @@ class GameViewModel(
         _showGameOver.value = false
         _showStart.value = true
         _state.value = null
+        
+        // Reset step data for new session
+        stepViewModel.resetSession()
+        
         // Canvas size persists in lastCanvasWidth/lastCanvasHeight
     }
 
