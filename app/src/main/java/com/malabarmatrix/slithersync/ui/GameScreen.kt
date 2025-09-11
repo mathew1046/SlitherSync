@@ -161,18 +161,29 @@ fun GameScreen(vm: GameViewModel) {
                     }
                 }
                 .pointerInput(Unit) {
+                    var totalDx = 0f
+                    var totalDy = 0f
+                    val swipeThresholdPx = 48f
                     detectDragGestures(
-                        onDragStart = { vm.setTouchActive(true) },
-                        onDragEnd = { vm.setTouchActive(false) },
-                        onDragCancel = { vm.setTouchActive(false) }
-                    ) { change, _ ->
-                        val centerX = canvasWidth / 2f
-                        val centerY = canvasHeight / 2f
-                        val dx = change.position.x - centerX
-                        val dy = change.position.y - centerY
-                        var deg = Math.toDegrees(atan2(dy.toDouble(), dx.toDouble())).toFloat()
-                        if (deg < 0) deg += 360f
-                        vm.setTouchHeading(deg)
+                        onDragStart = {
+                            totalDx = 0f
+                            totalDy = 0f
+                        },
+                        onDragEnd = {
+                            val absDx = kotlin.math.abs(totalDx)
+                            val absDy = kotlin.math.abs(totalDy)
+                            if (absDx < swipeThresholdPx && absDy < swipeThresholdPx) return@detectDragGestures
+                            val headingDeg = if (absDx > absDy) {
+                                if (totalDx > 0) 0f else 180f // right or left
+                            } else {
+                                if (totalDy > 0) 90f else 270f // down or up
+                            }
+                            vm.setTouchHeading(headingDeg)
+                        },
+                        onDragCancel = { },
+                    ) { change, dragAmount ->
+                        totalDx += dragAmount.x
+                        totalDy += dragAmount.y
                     }
                 },
             contentAlignment = Alignment.Center
