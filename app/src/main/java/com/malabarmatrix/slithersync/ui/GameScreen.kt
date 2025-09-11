@@ -40,6 +40,11 @@ fun GameScreen(vm: GameViewModel) {
     val showStart by vm.showStart.collectAsState(initial = true)
     val showGameOver by vm.showGameOver.collectAsState(initial = false)
     val paused by vm.paused.collectAsState(initial = false)
+    
+    // Step tracking data
+    val sessionSteps by vm.sessionSteps.collectAsState(initial = 0)
+    val caloriesBurned by vm.caloriesBurned.collectAsState(initial = 0.0)
+    val isStepDetectionActive by vm.isStepDetectionActive.collectAsState(initial = false)
 
     var canvasWidth by remember { mutableFloatStateOf(0f) }
     var canvasHeight by remember { mutableFloatStateOf(0f) }
@@ -48,9 +53,20 @@ fun GameScreen(vm: GameViewModel) {
         AlertDialog(
             onDismissRequest = { },
             title = { Text("SlitherSync") },
-            text = { Text("Tap Start to play. Use +5/+20 or steps; drag to steer.") },
+            text = { 
+                Column {
+                    Text("Welcome to SlitherSync!")
+                    Text("")
+                    Text("• Snake moves forward with each step you take")
+                    Text("• Drag to steer the snake direction")
+                    Text("• Snake stays at rest when you stop walking")
+                    Text("• Use +5/+20 buttons for testing")
+                    Text("")
+                    Text("Make sure to grant activity recognition permission!")
+                }
+            },
             confirmButton = {
-                TextButton(onClick = { vm.startGame() }) { Text("Start") }
+                TextButton(onClick = { vm.startGame() }) { Text("Start Walking!") }
             }
         )
     }
@@ -71,35 +87,63 @@ fun GameScreen(vm: GameViewModel) {
 
     Scaffold(
         topBar = {
-            Row(
-                Modifier.fillMaxWidth().background(Color(0xFF0E1115)).padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                Modifier.fillMaxWidth().background(Color(0xFF0E1115)).padding(12.dp)
             ) {
-                // Left: App name
-                Text(
-                    "SlitherSync",
-                    color = Color(0xFF8AB4F8),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Start
-                )
-                // Center: Live score
-                Text(
-                    "Score: $score",
-                    color = Color.White,
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center
-                )
-                // Right: Pause/Resume + Restart
+                // First row: App name, Score, Controls
                 Row(
-                    modifier = Modifier.weight(1f),
-                    horizontalArrangement = Arrangement.End,
+                    Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Button(onClick = { vm.togglePause() }) { Text(if (paused) "Resume" else "Pause") }
-                    androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.padding(horizontal = 4.dp))
-                    Button(onClick = { vm.restart(canvasWidth.toInt(), canvasHeight.toInt()); vm.startGame() }) { Text("Restart") }
+                    // Left: App name
+                    Text(
+                        "SlitherSync",
+                        color = Color(0xFF8AB4F8),
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Start
+                    )
+                    // Center: Live score
+                    Text(
+                        "Score: $score",
+                        color = Color.White,
+                        style = MaterialTheme.typography.titleMedium,
+                        modifier = Modifier.weight(1f),
+                        textAlign = TextAlign.Center
+                    )
+                    // Right: Pause/Resume + Restart
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(onClick = { vm.togglePause() }) { Text(if (paused) "Resume" else "Pause") }
+                        androidx.compose.foundation.layout.Spacer(modifier = androidx.compose.ui.Modifier.padding(horizontal = 4.dp))
+                        Button(onClick = { vm.restart(canvasWidth.toInt(), canvasHeight.toInt()); vm.startGame() }) { Text("Restart") }
+                    }
+                }
+                
+                // Second row: Step tracking
+                Row(
+                    Modifier.fillMaxWidth().padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "Steps: $sessionSteps",
+                        color = Color(0xFF76FF03),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        "Calories: ${String.format("%.1f", caloriesBurned)}",
+                        color = Color(0xFFFF4081),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    Text(
+                        if (isStepDetectionActive) "Sensors: Active" else "Sensors: Inactive",
+                        color = if (isStepDetectionActive) Color(0xFF4CAF50) else Color(0xFFFF5722),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
         },
