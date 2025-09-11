@@ -38,7 +38,7 @@ class GameViewModel(
     private val _paused = MutableStateFlow(false)
     val paused: StateFlow<Boolean> = _paused
 
-    var stepPixels: Float = 30f
+    var stepPixels: Float = 50f
     
     // Expose step data from StepViewModel
     val totalSteps: StateFlow<Int> = stepViewModel.totalSteps
@@ -65,14 +65,7 @@ class GameViewModel(
     private fun startLoopsIfNeeded() {
         if (ticker != null) return
         
-        // Handle device orientation for snake direction
-        viewModelScope.launch {
-            sensorRepo.headingDegrees.collectLatest { deg ->
-                if (!touchActive) {
-                    heading = deg
-                }
-            }
-        }
+        // Disable device orientation control; we use discrete swipe directions only
         
         // Handle step-based movement - snake only moves when steps are detected
         viewModelScope.launch {

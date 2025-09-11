@@ -30,13 +30,13 @@ class StepSensorManager(private val context: Context) {
         var ewmaAbsDev = 0f
         // Gyro-derived shake suppression
         var lastGyroMagnitude = 0f
-        val gyroShakeThreshold = 4.0f // rad/s, above this likely a hand shake
+        val gyroShakeThreshold = 3.5f // rad/s, above this likely a hand shake
         
         // Debounce and filtering parameters
-        val minStepIntervalNs = 220_000_000L // absolute minimum interval between steps
-        val peakDebounceNs = 180_000_000L // 180ms debounce for accel peaks
-        val smoothingAlpha = 0.25f // More responsive low-pass
-        val ewmaAlpha = 0.2f
+        val minStepIntervalNs = 250_000_000L // absolute minimum interval between steps
+        val peakDebounceNs = 150_000_000L // 180ms debounce for accel peaks
+        val smoothingAlpha = 0.4f // More responsive low-pass
+        val ewmaAlpha = 0.3f
         // Adaptive cadence window (based on last inter-step intervals)
         var ewmaIntervalNs = 600_000_000L // start at 600ms (~100 steps/min)
         val intervalAlpha = 0.2f
@@ -45,7 +45,7 @@ class StepSensorManager(private val context: Context) {
         var stepDetectorActive = false
         var accelerometerActive = false
         var consecutiveValidReadings = 0
-        val minConsecutiveReadings = 2
+        val minConsecutiveReadings = 1
 
         val listener = object : SensorEventListener {
             override fun onSensorChanged(event: SensorEvent) {
@@ -85,7 +85,7 @@ class StepSensorManager(private val context: Context) {
                         ewmaAbsDev = if (ewmaAbsDev == 0f) absDev else ewmaAbsDev + ewmaAlpha * (absDev - ewmaAbsDev)
 
                         // Dynamic threshold: baseline + 2.2 * deviation, with floors/caps
-                        val dynamicThreshold = (ewmaDelta + 2.2f * ewmaAbsDev).coerceIn(0.5f, 2.8f)
+                        val dynamicThreshold = (ewmaDelta + 2.8f * ewmaAbsDev).coerceIn(0.5f, 2.8f)
 
                         if (
                             // Use accel path both when detector missing and as backup for missed steps
