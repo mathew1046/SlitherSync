@@ -43,6 +43,8 @@ fun GameScreen(vm: GameViewModel) {
     
     // Step tracking data
     val sessionSteps by vm.sessionSteps.collectAsState(initial = 0)
+    val dailySteps by vm.dailySteps.collectAsState(initial = 0)
+    val weather by vm.weather.collectAsState(initial = "Weather: ...")
     val caloriesBurned by vm.caloriesBurned.collectAsState(initial = 0.0)
     val isStepDetectionActive by vm.isStepDetectionActive.collectAsState(initial = false)
 
@@ -130,18 +132,18 @@ fun GameScreen(vm: GameViewModel) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        "Steps: $sessionSteps",
+                        "Session Steps: $sessionSteps",
                         color = Color(0xFF76FF03),
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
-                        "Calories: ${String.format("%.1f", caloriesBurned)}",
-                        color = Color(0xFFFF4081),
+                        "Daily Steps: ${dailySteps}",
+                        color = Color(0xFF76FF03),
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
-                        if (isStepDetectionActive) "Sensors: Active" else "Sensors: Inactive",
-                        color = if (isStepDetectionActive) Color(0xFF4CAF50) else Color(0xFFFF5722),
+                        text = weather,
+                        color = Color(0xFF8AB4F8),
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }

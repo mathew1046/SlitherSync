@@ -24,6 +24,10 @@ class SnakeEngine(
     private var score: Int = 0
     private var isGameOver: Boolean = false
 
+    // --- Step smoothing ---
+    private var stepBuffer = 0
+    private val stepThreshold = 2 // require at least 2 valid detections before moving
+
     init {
         val startX = canvasWidth / 2f
         val startY = canvasHeight / 2f
@@ -37,14 +41,40 @@ class SnakeEngine(
         headingRadians = (angleDegrees / 180f * PI).toFloat()
     }
 
-    fun moveForwardBySteps(stepDelta: Int) {
+    /**
+     * Called when sensors detect possible steps.
+     * Smooths false positives by buffering.
+     */
+    fun onStepDetected(rawSteps: Int) {
         if (isGameOver) return
-        val distance = stepDelta * stepPixels
-        if (distance <= 0f) return
-        advance(distance)
+        if (rawSteps <= 0) return
+
+        stepBuffer += rawSteps
+        if (stepBuffer >= stepThreshold) {
+            moveForwardOneStep()
+            stepBuffer = 0
+        }
+    }
+    /**
+     * Old API kept for compatibility.
+     * Re-routes to step-detection logic.
+     */
+    fun moveForwardBySteps(stepDelta: Int) {
+        onStepDetected(stepDelta)
+    }
+
+    private fun moveForwardOneStep() {
+        advance(stepPixels)
+        advance(stepPixels)
+        advance(stepPixels)
+        advance(stepPixels)
+        advance(stepPixels)
         checkCollisions()
     }
 
+    /**
+     * Used for continuous baseline movement (e.g., from touch joystick)
+     */
     fun tickBaseline(speedPixels: Float) {
         if (isGameOver) return
         if (speedPixels <= 0f) return
@@ -101,11 +131,13 @@ class SnakeEngine(
         val minY = borderMargin
         val maxX = canvasWidth - borderMargin
         val maxY = canvasHeight - borderMargin
+
         // walls
         if (head.x < minX || head.y < minY || head.x > maxX || head.y > maxY) {
             isGameOver = true
             return
         }
+
         // self collision
         for (i in 3 until points.size) { // skip immediate neighbors
             if (distanceBetween(head, points.elementAt(i)) < headRadius) {
@@ -113,6 +145,7 @@ class SnakeEngine(
                 return
             }
         }
+
         // food
         currentFood?.let { f ->
             if (distanceBetween(head, f) < headRadius * 2) {

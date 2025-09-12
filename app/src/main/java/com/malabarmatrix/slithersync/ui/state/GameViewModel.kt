@@ -14,11 +14,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
+import com.malabarmatrix.slithersync.api.GoogleFitManager
+import com.malabarmatrix.slithersync.api.OpenWeatherMapManager
+
 class GameViewModel(
     app: Application,
     private val stepRepo: StepRepository,
     private val sensorRepo: SensorRepository,
     private val stepViewModel: StepViewModel,
+    private val googleFitManager: GoogleFitManager,
+    private val openWeatherMapManager: OpenWeatherMapManager,
 ) : AndroidViewModel(app) {
 
     private var engine: SnakeEngine? = null
@@ -38,7 +43,13 @@ class GameViewModel(
     private val _paused = MutableStateFlow(false)
     val paused: StateFlow<Boolean> = _paused
 
-    var stepPixels: Float = 35f
+    private val _dailySteps = MutableStateFlow(0)
+    val dailySteps: StateFlow<Int> = _dailySteps
+
+    private val _weather = MutableStateFlow("Weather: Loading...")
+    val weather: StateFlow<String> = _weather
+
+    var stepPixels: Float = 5f
     
     // Expose step data from StepViewModel
     val totalSteps: StateFlow<Int> = stepViewModel.totalSteps
@@ -60,6 +71,16 @@ class GameViewModel(
         // Do not create engine here; it will be created when game starts
         emitFrame()
         startLoopsIfNeeded()
+    }
+
+    fun loadInitialData() {
+        viewModelScope.launch {
+            _dailySteps.value = googleFitManager.getDailySteps()
+        }
+        viewModelScope.launch {
+            // Default coordinates (e.g., Mountain View, CA)
+            _weather.value = openWeatherMapManager.getCurrentWeather(10.0443841,  76.6430635)
+        }
     }
 
     private fun startLoopsIfNeeded() {
