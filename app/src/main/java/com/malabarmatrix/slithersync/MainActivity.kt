@@ -1,11 +1,14 @@
 package com.malabarmatrix.slithersync
 
 import android.Manifest
+import android.app.Activity
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +21,8 @@ import com.malabarmatrix.slithersync.ui.GameScreen
 import com.malabarmatrix.slithersync.ui.state.GameViewModel
 import com.malabarmatrix.slithersync.ui.state.StepViewModel
 import com.malabarmatrix.slithersync.util.Permissions
+import com.malabarmatrix.slithersync.api.GoogleFitManager
+import com.malabarmatrix.slithersync.api.OpenWeatherMapManager
 
 class MainActivity : ComponentActivity() {
     
@@ -25,6 +30,21 @@ class MainActivity : ComponentActivity() {
         ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         // Permission result handled in the UI
+    }
+
+    private lateinit var googleFitManager: GoogleFitManager
+    private lateinit var gameViewModel: GameViewModel
+
+    private val googleFitSignInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // Permissions granted, fetch data
+            gameViewModel.loadInitialData()
+        } else {
+            // Permissions denied
+            Log.w("MainActivity", "Google Fit permissions denied.")
+        }
     }
     
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,10 +67,19 @@ class MainActivity : ComponentActivity() {
                             val steps = SimulatedStepRepository()
                             val sensors = AndroidSensorRepository(applicationContext)
                             val stepViewModel = StepViewModel(application)
+                            googleFitManager = GoogleFitManager(applicationContext)
+                            val openWeatherMapManager = OpenWeatherMapManager(applicationContext)
                             @Suppress("UNCHECKED_CAST")
-                            return GameViewModel(application, steps, sensors, stepViewModel) as T
+                            gameViewModel = GameViewModel(application, steps, sensors, stepViewModel, googleFitManager, openWeatherMapManager)
+                            return gameViewModel as T
                         }
                     })
+
+                    if (!googleFitManager.isPermissionGranted()) {
+                        googleFitManager.requestPermissions(this, googleFitSignInLauncher)
+                    } else {
+                        vm.loadInitialData()
+                    }
                     GameScreen(vm)
                 }
             }
