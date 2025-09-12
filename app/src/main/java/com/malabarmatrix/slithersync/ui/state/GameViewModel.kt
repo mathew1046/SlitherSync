@@ -38,7 +38,7 @@ class GameViewModel(
     private val _paused = MutableStateFlow(false)
     val paused: StateFlow<Boolean> = _paused
 
-    var stepPixels: Float = 50f
+    var stepPixels: Float = 35f
     
     // Expose step data from StepViewModel
     val totalSteps: StateFlow<Int> = stepViewModel.totalSteps
