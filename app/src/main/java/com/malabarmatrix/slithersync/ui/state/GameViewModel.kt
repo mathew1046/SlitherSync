@@ -49,7 +49,7 @@ class GameViewModel(
     private val _weather = MutableStateFlow("Weather: Loading...")
     val weather: StateFlow<String> = _weather
 
-    var stepPixels: Float = 5f
+    var stepPixels: Float = 10f
     
     // Expose step data from StepViewModel
     val totalSteps: StateFlow<Int> = stepViewModel.totalSteps
