@@ -77,9 +77,11 @@ class GameViewModel(
         viewModelScope.launch {
             _dailySteps.value = googleFitManager.getDailySteps()
         }
+    }
+
+    fun fetchWeather(lat: Double, lon: Double) {
         viewModelScope.launch {
-            // Default coordinates (e.g., Mountain View, CA)
-            _weather.value = openWeatherMapManager.getCurrentWeather(10.0443841,  76.6430635)
+            _weather.value = openWeatherMapManager.getCurrentWeather(lat, lon)
         }
     }
 
