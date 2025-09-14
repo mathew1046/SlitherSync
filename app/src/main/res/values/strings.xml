@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">SlitherSync</string>
     <!-- IMPORTANT: Replace with your own OpenWeatherMap API key -->
-    <string name="openweathermap_api_key">413b819143c1237c3a6156b4fd303712</string>
+    <string name="openweathermap_api_key">YOUR_API_KEY</string>
 </resources>
