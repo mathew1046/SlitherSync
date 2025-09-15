@@ -1,38 +1,64 @@
 # SlitherSync 🐍
 
-## A Fitness-Driven Twist on a Classic Game
+## A Fitness-Driven Twist on a Classic Game  
 
-SlitherSync is a modern take on the classic Snake game, transforming your real-world movements into in-game action! By using your mobile device's sensors, every step you take in real life makes your snake move in the game. It's a fun and interactive way to get active and stay fit.
+SlitherSync is a modern take on the classic Snake game, transforming your real-world movements into in-game action! By using your mobile device's sensors, every step you take in real life makes your snake move in the game. It's a fun and interactive way to get active and stay fit.  
 
-***
+---
 
 ### Key Features ✨
 
-* **Step-Controlled Gameplay:** Your physical steps directly control the snake's movement.
-* **Integrated with Google Fit:** Tracks and displays your daily step count in real time.
-* **Real-Time Weather:** Shows live weather updates using the OpenWeatherMap API.
-* **Sensor Fusion Technology:** Utilizes advanced sensor fusion to accurately translate your steps into gameplay.
-* **Classic Gameplay:** Combines innovative technology with the nostalgic fun of the original Snake game.
+* **Step-Controlled Gameplay:** Your physical steps directly control the snake's movement.  
+* **Integrated with Google Fit:** Tracks and displays your daily step count in real time.  
+* **Real-Time Weather:** Shows live weather updates using the OpenWeatherMap API.  
+* **Location Awareness:** Uses device location to fetch localized weather and optionally display the city name.  
+* **Sensor Fusion Technology:** Utilizes accelerometer + gyroscope data for step-based controls.  
+* **Classic Gameplay:** Nostalgic Snake fun with a modern, health-driven twist.  
 
-SlitherSync is more than just a game; it's a playful fusion of fitness tracking, sensor technology, and classic gaming.
+---
 
-***
+### How It Works ⚙️  
 
-### How It Works ⚙️
+SlitherSync uses your mobile phone's built-in sensors (accelerometer, gyroscope) to detect steps. These inputs are fused for accuracy and then translated into in-game commands for snake movement.  
 
-SlitherSync uses your mobile phone's built-in sensors, like the **accelerometer** and **gyroscope**, to detect your steps. These sensors work together through **sensor fusion** to provide accurate and smooth movement. . The app then translates this data into directional commands for the snake in the game.
+The app connects to two main APIs:  
+* **Google Fit API** → Fetches and displays daily step counts.  
+* **OpenWeatherMap API** → Provides real-time weather data.  
 
-The app also connects to two main APIs to enhance the experience:
-* **Google Fit API:** Fetches and displays your total daily steps, encouraging you to stay active.
-* **OpenWeatherMap API:** Provides real-time weather information to show on the game's banner.
+Additionally, device **GPS location** is used to fetch coordinates, which can be reverse-geocoded into a city name for contextual weather info.  
 
-***
+---
 
-### Technologies Used 💻
+### Technologies Used 💻  
 
-* **Mobile Sensors (Accelerometer, Gyroscope):** For detecting real-world steps.
-* **Sensor Fusion:** To combine sensor data for improved accuracy.
-* **Google Fit API:** For fitness tracking integration.
-* **OpenWeatherMap API:** For weather data.
+* **Mobile Sensors (Accelerometer, Gyroscope)**  
+* **Sensor Fusion**  
+* **Google Fit API** (Fitness data integration)  
+* **OpenWeatherMap API** (Weather updates)  
+* **Fused Location Provider (Google Play Services)**  
+* **Android + Kotlin + Ktor**  
 
-SlitherSync is the perfect app for anyone looking to make fitness fun and engaging. Get ready to sync your steps with the slither!
+---
+
+### Current Limitations ⚠️  
+
+* **Google Fit API Access:**  
+  * While in testing phase, Google Fit API data may **not match the official Google Fit app**.  
+  * Only **test users registered in the Google Cloud Console** can access fitness data until the app is verified.  
+  * Real-time sync may have slight delays depending on network and Google Fit data refresh.  
+
+---
+
+### Future Improvements 🚀  
+
+* **Google Fit API Verification:** Full production release so any user can connect their Google Fit account.  
+* **Customizable Controls:** Allow users to switch between step-based and on-screen controls.  
+* **Achievements & Rewards:** Gamify fitness further with goals, streaks, and badges.  
+* **Offline Mode:** Cache weather and step data for limited offline functionality.  
+* **Enhanced Geocoding:** Integrate a more reliable reverse geocoding API (e.g., Google Maps, Mapbox).  
+
+---
+
+### Why SlitherSync? 🎮  
+
+SlitherSync turns **daily activity into gameplay**. It motivates you to walk more, move more, and enjoy the nostalgia of Snake — all while staying connected with your fitness goals and the world around you.  
