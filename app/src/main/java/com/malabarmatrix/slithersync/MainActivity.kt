@@ -122,8 +122,14 @@ class MainActivity : ComponentActivity() {
     private fun fetchLocationAndWeather() {
         CoroutineScope(Dispatchers.Main).launch {
             try {
-                val (lat, lon) = locationHelper.getCurrentLocation()
-                gameViewModel.fetchWeather(lat, lon)
+                val location = locationHelper.getCurrentLocation()
+                if (location != null) {
+                    val lat = location.latitude
+                    val lon = location.longitude
+                    gameViewModel.fetchWeather(lat, lon)
+                } else {
+                    Log.e("MainActivity", "Location is null")
+                }
             } catch (e: Exception) {
                 Log.e("MainActivity", "Error getting location or weather", e)
             }

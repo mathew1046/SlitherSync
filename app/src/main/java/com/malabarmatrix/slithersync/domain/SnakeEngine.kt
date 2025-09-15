@@ -32,7 +32,7 @@ class SnakeEngine(
         val startX = canvasWidth / 2f
         val startY = canvasHeight / 2f
         repeat(initialLength) { i ->
-            points.addFirst(Point(startX - i * headRadius * 1.5f, startY))
+            points.addFirst(Point(startX + i * headRadius * 1.5f, startY))
         }
         spawnFood()
     }

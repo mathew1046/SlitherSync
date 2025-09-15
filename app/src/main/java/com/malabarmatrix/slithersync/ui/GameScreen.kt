@@ -60,9 +60,8 @@ fun GameScreen(vm: GameViewModel) {
                     Text("Welcome to SlitherSync!")
                     Text("")
                     Text("• Snake moves forward with each step you take")
-                    Text("• Drag to steer the snake direction")
+                    Text("• Swipe to change the direction of snake.")
                     Text("• Snake stays at rest when you stop walking")
-                    Text("• Use +5/+20 buttons for testing")
                     Text("")
                     Text("Make sure to grant activity recognition permission!")
                 }
