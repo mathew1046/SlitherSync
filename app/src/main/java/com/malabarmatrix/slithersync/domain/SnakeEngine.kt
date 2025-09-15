@@ -32,7 +32,7 @@ class SnakeEngine(
         val startX = canvasWidth / 2f
         val startY = canvasHeight / 2f
         repeat(initialLength) { i ->
-            points.addFirst(Point(startX - i * headRadius * 1.5f, startY))
+            points.addFirst(Point(startX + i * headRadius * 1.5f, startY))
         }
         spawnFood()
     }
@@ -64,11 +64,8 @@ class SnakeEngine(
     }
 
     private fun moveForwardOneStep() {
-        advance(stepPixels)
-        advance(stepPixels)
-        advance(stepPixels)
-        advance(stepPixels)
-        advance(stepPixels)
+        for(i in 1..5)
+            advance(stepPixels)
         checkCollisions()
     }
 
@@ -148,7 +145,7 @@ class SnakeEngine(
 
         // food
         currentFood?.let { f ->
-            if (distanceBetween(head, f) < headRadius * 2) {
+            if (distanceBetween(head, f) < headRadius * 4) {
                 score += 1
                 pendingGrowth += headRadius * 12
                 spawnFood()
