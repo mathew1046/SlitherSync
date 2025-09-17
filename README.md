@@ -20,9 +20,9 @@ SlitherSync is a modern take on the classic Snake game, transforming your real-w
 ### Screenshots 📸  
 
 <p align="center">
-  <img src="./img1.png" width="250" alt="SlitherSync Screenshot 1" />  
-  <img src="./img2.png" width="250" alt="SlitherSync Screenshot 2" />  
-  <img src="./img3.png" width="250" alt="SlitherSync Screenshot 3" />  
+  <img src="img1.jpg" width="250" alt="SlitherSync Screenshot 1" />  
+  <img src="img2.jpg" width="250" alt="SlitherSync Screenshot 2" />  
+  <img src="img3.jpg" width="250" alt="SlitherSync Screenshot 3" />  
 </p>  
 
 ---
